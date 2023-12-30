@@ -33,7 +33,7 @@ public class MvcController {
         if (user == null) {
             return new ModelAndView("redirect:/register");
         }
-        return new ModelAndView("/index.html", Map.of("user", user));
+        return new ModelAndView("/index.html", Map.of("user", user));  // 视图名  &  map来保存参数
     }
 
     @GetMapping("/register")

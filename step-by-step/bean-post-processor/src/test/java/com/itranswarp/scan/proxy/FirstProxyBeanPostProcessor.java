@@ -15,15 +15,18 @@ import com.itranswarp.summer.context.BeanPostProcessor;
 public class FirstProxyBeanPostProcessor implements BeanPostProcessor {
 
     final Logger logger = LoggerFactory.getLogger(getClass());
-
+    // 保存原始Bean:
     Map<String, Object> originBeans = new HashMap<>();
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
         if (OriginBean.class.isAssignableFrom(bean.getClass())) {
+            // 检测到OriginBean,创建FirstProxyBean:
             logger.debug("create first proxy for bean '{}': {}", beanName, bean);
             var proxy = new FirstProxyBean((OriginBean) bean);
+            // 保存原始Bean:
             originBeans.put(beanName, bean);
+            // 返回Proxy:
             return proxy;
         }
         return bean;
@@ -34,6 +37,7 @@ public class FirstProxyBeanPostProcessor implements BeanPostProcessor {
         Object origin = originBeans.get(beanName);
         if (origin != null) {
             logger.debug("auto set property for {} from first proxy {} to origin bean: {}", beanName, bean, origin);
+            // 存在原始Bean时,返回原始Bean:
             return origin;
         }
         return bean;

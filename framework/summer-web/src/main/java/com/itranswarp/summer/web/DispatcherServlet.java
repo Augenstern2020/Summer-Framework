@@ -279,8 +279,8 @@ public class DispatcherServlet extends HttpServlet {
             this.isRest = isRest;
             this.isResponseBody = method.getAnnotation(ResponseBody.class) != null;
             this.isVoid = method.getReturnType() == void.class;
-            this.urlPattern = PathUtils.compile(urlPattern);
-            this.controller = controller;
+            this.urlPattern = PathUtils.compile(urlPattern);   // GetMapping和PostMapping的value值 => URL正则匹配
+            this.controller = controller;  // instance 类实例
             this.handlerMethod = method;
             Parameter[] params = method.getParameters();
             Annotation[][] paramsAnnos = method.getParameterAnnotations();
@@ -301,7 +301,7 @@ public class DispatcherServlet extends HttpServlet {
             if (matcher.matches()) {
                 Object[] arguments = new Object[this.methodParameters.length];
                 for (int i = 0; i < arguments.length; i++) {
-                    Param param = methodParameters[i];
+                    Param param = methodParameters[i];      // 拿到 param 类：
                     arguments[i] = switch (param.paramType) {
                     case PATH_VARIABLE -> {
                         try {

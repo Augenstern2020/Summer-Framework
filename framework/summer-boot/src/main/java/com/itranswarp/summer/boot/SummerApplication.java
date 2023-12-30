@@ -41,7 +41,9 @@ public class SummerApplication {
         final String pwd = Paths.get("").toAbsolutePath().toString();
         logger.info("Starting {} using Java {} with PID {} (started by {} in {})", configClass.getSimpleName(), javaVersion, pid, user, pwd);
 
+        // 读取application.yml配置:
         var propertyResolver = WebUtils.createPropertyResolver();
+        // 创建Tomcat服务器:
         var server = startTomcat(webDir, baseDir, configClass, propertyResolver);
 
         // started info:
@@ -49,21 +51,29 @@ public class SummerApplication {
         final String appTime = String.format("%.3f", (endTime - startTime) / 1000.0);
         final String jvmTime = String.format("%.3f", ManagementFactory.getRuntimeMXBean().getUptime() / 1000.0);
         logger.info("Started {} in {} seconds (process running for {})", configClass.getSimpleName(), appTime, jvmTime);
-
+        // 等待服务器结束:
         server.await();
     }
 
     protected Server startTomcat(String webDir, String baseDir, Class<?> configClass, PropertyResolver propertyResolver) throws Exception {
         int port = propertyResolver.getProperty("${server.port:8080}", int.class);
         logger.info("starting Tomcat at port {}...", port);
+        // 实例化Tomcat Server:
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(port);
+        // 设置Connector:
         tomcat.getConnector().setThrowOnFailure(true);
+        // 添加一个默认的Webapp，挂载在'/':
         Context ctx = tomcat.addWebapp("", new File(webDir).getAbsolutePath());
+        // 设置应用程序的目录:
         WebResourceRoot resources = new StandardRoot(ctx);
         resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes", new File(baseDir).getAbsolutePath(), "/"));
         ctx.setResources(resources);
+
+        // 设置ServletContainerInitializer监听器:
         ctx.addServletContainerInitializer(new ContextLoaderInitializer(configClass, propertyResolver), Set.of());
+
+        // 启动服务器:
         tomcat.start();
         logger.info("Tomcat started at port {}...", port);
         return tomcat.getServer();

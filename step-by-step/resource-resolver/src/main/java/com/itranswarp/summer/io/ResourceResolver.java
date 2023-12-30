@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A simple classpath scan works both in directory and jar:
- * 
+ *
  * https://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection#58773038
  */
 public class ResourceResolver {
@@ -51,6 +51,7 @@ public class ResourceResolver {
 
     <R> void scan0(String basePackagePath, String path, List<R> collector, Function<Resource, R> mapper) throws IOException, URISyntaxException {
         logger.atDebug().log("scan path: {}", path);
+        logger.atDebug().log("scan basePackagePath: {}", basePackagePath);
         Enumeration<URL> en = getContextClassLoader().getResources(path);
         while (en.hasMoreElements()) {
             URL url = en.nextElement();

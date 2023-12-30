@@ -19,8 +19,10 @@ public class AnnotationConfigApplicationContextTest {
     public void testProxy() {
         var ctx = new AnnotationConfigApplicationContext(ScanApplication.class, createPropertyResolver());
         // test proxy:
+        // 获取OriginBean的实例,此处获取的应该是SendProxyBeanProxy:
         OriginBean proxy = ctx.getBean(OriginBean.class);
         assertSame(SecondProxyBean.class, proxy.getClass());
+
         assertEquals("Scan App", proxy.getName());
         assertEquals("v1.0", proxy.getVersion());
         // make sure proxy.field is not injected:

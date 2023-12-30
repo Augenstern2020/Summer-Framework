@@ -24,14 +24,14 @@ public abstract class AnnotationProxyBeanPostProcessor<A extends Annotation> imp
     }
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        Class<?> beanClass = bean.getClass();
+        Class<?> beanClass = bean.getClass();  // class type
 
         // has class-level @Annotation?
         A anno = beanClass.getAnnotation(annotationClass);
         if (anno != null) {
             String handlerName;
             try {
-                handlerName = (String) anno.annotationType().getMethod("value").invoke(anno);
+                handlerName = (String) anno.annotationType().getMethod("value").invoke(anno);  // 代理类名
             } catch (ReflectiveOperationException e) {
                 throw new AopConfigException(String.format("@%s must have value() returned String type.", this.annotationClass.getSimpleName()), e);
             }

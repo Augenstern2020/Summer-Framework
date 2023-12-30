@@ -117,10 +117,10 @@ public class AnnotationConfigApplicationContext {
 
     /**
      * Scan factory method that annotated with @Bean:
-     * 
+     *
      * <code>
      * &#64;Configuration
-     * public class Hello { 
+     * public class Hello {
      *     @Bean
      *     ZoneId createZone() {
      *         return ZoneId.of("Z");
@@ -128,7 +128,7 @@ public class AnnotationConfigApplicationContext {
      * }
      * </code>
      */
-    void scanFactoryMethods(String factoryBeanName, Class<?> clazz, Map<String, BeanDefinition> defs) {
+    void scanFactoryMethods(String factoryName, Class<?> clazz, Map<String, BeanDefinition> defs) {
         for (Method method : clazz.getDeclaredMethods()) {
             Bean bean = method.getAnnotation(Bean.class);
             if (bean != null) {
@@ -149,7 +149,7 @@ public class AnnotationConfigApplicationContext {
                 if (beanClass == void.class || beanClass == Void.class) {
                     throw new BeanDefinitionException("@Bean method " + clazz.getName() + "." + method.getName() + " must not return void.");
                 }
-                var def = new BeanDefinition(ClassUtils.getBeanName(method), beanClass, factoryBeanName, method, getOrder(method),
+                var def = new BeanDefinition(ClassUtils.getBeanName(method), beanClass, factoryName, method, getOrder(method),
                         method.isAnnotationPresent(Primary.class),
                         // init method:
                         bean.initMethod().isEmpty() ? null : bean.initMethod(),
@@ -174,7 +174,7 @@ public class AnnotationConfigApplicationContext {
 
     /**
      * Get order by:
-     * 
+     *
      * <code>
      * &#64;Order(100)
      * &#64;Component
@@ -188,7 +188,7 @@ public class AnnotationConfigApplicationContext {
 
     /**
      * Get order by:
-     * 
+     *
      * <code>
      * &#64;Order(100)
      * &#64;Bean

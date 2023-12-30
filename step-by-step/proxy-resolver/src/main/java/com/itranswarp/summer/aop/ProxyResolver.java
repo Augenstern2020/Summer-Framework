@@ -17,28 +17,35 @@ import net.bytebuddy.matcher.ElementMatchers;
 public class ProxyResolver {
 
     final Logger logger = LoggerFactory.getLogger(getClass());
-
+    // ByteBuddy实例:
     final ByteBuddy byteBuddy = new ByteBuddy();
 
     @SuppressWarnings("unchecked")
+    // 传入原始Bean、拦截器，返回代理后的实例:
     public <T> T createProxy(T bean, InvocationHandler handler) {
+        // 目标Bean的Class类型:
         Class<?> targetClass = bean.getClass();
         logger.atDebug().log("create proxy for bean {} @{}", targetClass.getName(), Integer.toHexString(bean.hashCode()));
+        // 动态创建Proxy的Class:
         Class<?> proxyClass = this.byteBuddy
                 // subclass with default empty constructor:
+                // 子类用默认无参数构造方法:
                 .subclass(targetClass, ConstructorStrategy.Default.DEFAULT_CONSTRUCTOR)
-                // intercept methods:
+                // intercept methods:  // 拦截所有public方法:
                 .method(ElementMatchers.isPublic()).intercept(InvocationHandlerAdapter.of(
                         // proxy method invoke:
+                        // 新的拦截器实例:
                         new InvocationHandler() {
                             @Override
                             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                                // delegate to origin bean:
+                                // delegate to origin bean:  // 将方法调用代理至原始Bean:
+                                // 内层的invoker 是调用了被代理对象的方法
                                 return handler.invoke(bean, method, args);
                             }
                         }))
-                // generate proxy class:
+                // generate proxy class: 生成字节码: 加载字节码:
                 .make().load(targetClass.getClassLoader()).getLoaded();
+        // 创建Proxy实例:
         Object proxy;
         try {
             proxy = proxyClass.getConstructor().newInstance();

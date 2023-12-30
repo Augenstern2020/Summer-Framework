@@ -104,7 +104,13 @@ public class JdbcTemplate {
     }
 
     public int update(String sql, Object... args) throws DataAccessException {
-        return execute(preparedStatementCreator(sql, args),
+        return execute(
+                // PreparedStatementCreator
+                (Connection con) -> {
+                    var ps = con.prepareStatement(sql);  // 创建prepared statement实例
+                    bindArgs(ps, args);  // 设置参数
+                    return ps;
+                },
                 // PreparedStatementCallback
                 (PreparedStatement ps) -> {
                     return ps.executeUpdate();
@@ -112,11 +118,14 @@ public class JdbcTemplate {
     }
 
     public <T> T execute(PreparedStatementCreator psc, PreparedStatementCallback<T> action) {
-        return execute((Connection con) -> {
-            try (PreparedStatement ps = psc.createPreparedStatement(con)) {
-                return action.doInPreparedStatement(ps);
-            }
-        });
+        return execute(
+                // ConnectionCallback<T> 实际执行 创建ps , 并执行ps的sql语句的过程
+                (Connection con) -> {
+                    try (PreparedStatement ps = psc.createPreparedStatement(con)) {
+                        return action.doInPreparedStatement(ps);
+                    }
+                }
+        );
     }
 
     public <T> T execute(ConnectionCallback<T> action) throws DataAccessException {
@@ -138,8 +147,8 @@ public class JdbcTemplate {
 
     private PreparedStatementCreator preparedStatementCreator(String sql, Object... args) {
         return (Connection con) -> {
-            var ps = con.prepareStatement(sql);
-            bindArgs(ps, args);
+            var ps = con.prepareStatement(sql);  // 创建prepared statement实例
+            bindArgs(ps, args);  // 设置参数
             return ps;
         };
     }

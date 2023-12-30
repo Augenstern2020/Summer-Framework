@@ -62,6 +62,7 @@ public class FreeMarkerViewResolver implements ViewResolver {
 
     @Override
     public void render(String viewName, Map<String, Object> model, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // viewName 是视图名，也就是html的前缀名  、、 model 是 map类型的前端页面所需参数
         Template templ = null;
         try {
             templ = this.config.getTemplate(viewName);
@@ -70,7 +71,7 @@ public class FreeMarkerViewResolver implements ViewResolver {
         }
         PrintWriter pw = resp.getWriter();
         try {
-            templ.process(model, pw);
+            templ.process(model, pw);  // 传递视图名 和 model参数， 帮我们渲染视图
         } catch (TemplateException e) {
             throw new ServerErrorException(e);
         }
@@ -81,7 +82,7 @@ public class FreeMarkerViewResolver implements ViewResolver {
 /**
  * copied from freemarker.cache.WebappTemplateLoader and modified to use
  * jakarta.servlet.ServletContext.
- * 
+ *
  * Because it is used old javax.servlet.ServletContext.
  */
 class ServletTemplateLoader implements TemplateLoader {
